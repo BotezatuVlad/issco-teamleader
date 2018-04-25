@@ -6,29 +6,29 @@ use Phalcon\Http\Response;
 $app = new Micro();
 
 $app->get('/', function () use ($app) {
-    $response = new Response();
-    
-    $response->setJsonContent([
-	    'status' => 'OK',
-	    'code' => 0,
-	    'data' => [],
-	    'message' => 'api root'
-    ]);
+	$response = new Response();
+	
+	$response->setJsonContent([
+		'status' => 'OK',
+		'code' => 0,
+		'data' => [],
+		'message' => 'api root'
+	]);
 	   
-    return $response;
+	return $response;
 });
 
 $app->post('/', function () use ($app) {
-    $response = new Response();
-    
-    $response->setJsonContent([
-	    'status' => 'OK',
-	    'code' => 0,
-	    'data' => [],
-	    'message' => 'check if the user is authenticated'
-    ]);
+	$response = new Response();
+	
+	$response->setJsonContent([
+		'status' => 'OK',
+		'code' => 0,
+		'data' => [],
+		'message' => 'check if the user is authenticated'
+	]);
 	   
-    return $response;
+	return $response;
 });
 
 $app->post('/auth', function () use ($app) {
