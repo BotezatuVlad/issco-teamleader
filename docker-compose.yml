@@ -1,0 +1,15 @@
+nginx:
+  build: ./.docker/nginx
+  ports:
+    - "8080:80"
+    - "8081:8080"
+  volumes:
+    - ./app:/app
+    - ./api:/api
+  links:
+    - phalcon
+phalcon:
+  build: ./.docker/phalcon
+  volumes:
+    - ./app:/app
+    - ./api:/api
