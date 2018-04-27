@@ -130,17 +130,17 @@ html, body {
 .page-wrap {
 	min-height: 100%;
 	/* equal to footer height */
-	margin-bottom: -142px; 
+	margin-bottom: -100px; 
 	width: 1280px;
 	margin-left: auto;
 	margin-right: auto;
 	text-align: left
 }
 .page-wrap:after {
-  content: "";
-  display: block;
+	content: "";
+	display: block;
 }
 .site-footer, .page-wrap:after {
-  /* .push must be the same height as footer */
-    height: 142px; 
+	/* .push must be the same height as footer */
+	height: 100px; 
 }

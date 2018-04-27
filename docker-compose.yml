@@ -1,15 +1,36 @@
-nginx:
-  build: ./.docker/nginx
-  ports:
-    - "8080:80"
-    - "8081:8080"
-  volumes:
-    - ./app:/app
-    - ./api:/api
-  links:
-    - phalcon
-phalcon:
-  build: ./.docker/phalcon
-  volumes:
-    - ./app:/app
-    - ./api:/api
+version: '2'
+
+services:
+  nginx:
+    build: ./.docker/nginx
+    ports:
+      - "8080:80"
+      - "8081:8080"
+    volumes:
+      - ./app:/app
+      - ./api:/api
+    links:
+      - phalcon
+  phalcon:
+    build: ./.docker/phalcon
+    volumes:
+      - ./app:/app
+      - ./api:/api
+    environment:
+      MYSQL_ROOT_PASSWORD: root_pass
+      MYSQL_DATABASE: issco_store
+      MYSQL_USER: dev_user
+      MYSQL_PASSWORD: dev_pass
+    links: [mysql]
+  mysql:
+    build: ./.docker/mysql
+    volumes:
+    - ./.docker/mysql/dump.sql:/docker-entrypoint-initdb.d/dump.sql
+    ports:
+      - "6603:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_pass
+      MYSQL_DATABASE: issco_store
+      MYSQL_USER: dev_user
+      MYSQL_PASSWORD: dev_pass
