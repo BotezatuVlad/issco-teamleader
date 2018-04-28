@@ -131,7 +131,6 @@ html, body {
 	min-height: 100%;
 	/* equal to footer height */
 	margin-bottom: -100px; 
-	width: 1280px;
 	margin-left: auto;
 	margin-right: auto;
 	text-align: left

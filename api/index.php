@@ -6,10 +6,35 @@ error_reporting(E_ALL);
 
 use Phalcon\Loader;
 use Phalcon\Mvc\Micro;
+use Phalcon\Filter;
 use Phalcon\Http\Response;
+use Phalcon\Http\Request;
 use Phalcon\Di\FactoryDefault;
 use Phalcon\Db\Adapter\Pdo\Mysql as PdoMysql;
 use Phalcon\Mvc\Model\Manager as ModelsManager;
+
+function pre()
+{
+	$numargs = func_num_args();
+	echo '---------------------------------------';
+	echo '<pre>';
+
+	if($numargs > 0)
+	{
+		$arg_list = func_get_args();
+
+		foreach($arg_list as $arg)
+		{
+			print_r($arg);
+		}
+	}
+	else
+	{
+		print_r('No arguments passed');
+	}
+	echo '</pre>';
+	echo '---------------------------------------';
+}
 
 // create dependency injection container
 $di = new FactoryDefault();
@@ -17,11 +42,11 @@ $di = new FactoryDefault();
 // connect to database
 $di->set('db', function(){
 	return new PdoMysql([
-		"host"     => "mysql",
-		"dbname"   => getenv('MYSQL_DATABASE'),
-		"port"     => 3306,
+		"host" => "mysql",
+		"dbname" => getenv('MYSQL_DATABASE'),
+		"port" => 3306,
 		"username" => getenv('MYSQL_USER'),
-		"password" => getenv('MYSQL_PASSWORD'),
+		"password" => getenv('MYSQL_PASSWORD')
 	]);
 });
 
@@ -39,59 +64,73 @@ $loader->register();
 
 $app = new Micro($di);
 
-// get the list of products
+// api root
 $app->get('/', function () use ($app) {
-	$data = [];
-
-	$phql = "SELECT * FROM Issco\\Store\\Products ORDER BY id";
-
-	$products = $app->modelsManager->executeQuery($phql);
-
-	foreach ($products as $product) {
-		$data[] = [
-			'id'   => $product->id,
-			'description' => $product->description,
-		];
-	}
-
 	$response = new Response();
 	
 	$response->setJsonContent([
 		'status' => 'OK',
 		'code' => 0,
-		'data' => $data,
+		'data' => [],
 		'message' => 'api root'
 	]);
 	   
 	return $response;
 });
 
-$app->post('/validate-token', function () use ($app) {
+// authenticate user
+$app->get('/auth', function () use ($app) {
 	$response = new Response();
-	
-	$response->setJsonContent([
-		'status' => 'OK',
-		'code' => 0,
+
+	$output = [
+		'status' => 'ERROR',
+		'code' => 1,
 		'data' => [],
-		'message' => 'check if the user is authenticated'
-	]);
-	   
+		'message' => 'Invalid request'
+	];
+
+	$isAjaxPost = true;// $app->request->isPost() && $request->isAjax();
+
+	if($isAjaxPost)
+	{
+		$filter = new Filter();
+	
+		$username = $filter->sanitize($app->request->get('name'), "string");
+
+		$userObj = null;
+
+		if(!empty($username))
+		{
+			$result = $app->db->query("SELECT * FROM `customers` WHERE `name` = :name: ORDER BY `id` LIMIT 1", ['name' => $username]);
+		
+			$result->setFetchMode(\Phalcon\Db::FETCH_OBJ);
+			
+			$userObj = $result->fetch();
+		}
+
+		if(!empty($userObj))
+		{
+			$output = [
+				'status' => 'OK',
+				'code' => 0,
+				'data' => $userObj,
+				'message' => 'User found'
+			];
+		}
+		else
+		{
+			$output['code'] = 2;
+
+			$output['message'] = 'User not found';
+		}
+	}
+	
+	$response->setJsonContent($output);
+	
 	return $response;
 });
 
-$app->post('/auth', function () use ($app) {
-	$response = new Response();
-	
-	$response->setJsonContent([
-		'status' => 'OK',
-		'code' => 0,
-		'data' => [],
-		'data' => 'try to authenticated the user'
-	]);
-	
-	return $response;
-});
-
+// get user discount
 $app->get('/get-discounts', function () use ($app) {
 	$response = new Response();
 	
@@ -105,19 +144,36 @@ $app->get('/get-discounts', function () use ($app) {
 	return $response;
 });
 
-$app->get('/products', function () use ($app) {
+// get the list of products
+$app->get('/load-products', function () use ($app) {
+	$products = $app->db->fetchAll("SELECT * FROM `products` ORDER BY `id`", \Phalcon\Db::FETCH_OBJ);
+
 	$response = new Response();
 	
 	$response->setJsonContent([
 		'status' => 'OK',
 		'code' => 0,
-		'data' => $data['products'],
-		'message' => 'the list of products'
+		'data' => $products,
+		'message' => 'api root'
 	]);
 	   
 	return $response;
 });
 
+$app->post('/validate-user', function () use ($app) {
+	$response = new Response();
+	
+	$response->setJsonContent([
+		'status' => 'OK',
+		'code' => 0,
+		'data' => [],
+		'message' => 'check if the user is valid'
+	]);
+	   
+	return $response;
+});
+
+// page not found
 $app->notFound(function () use ($app) {
 	$app->response
 		->setStatusCode(404, 'Not Found')
