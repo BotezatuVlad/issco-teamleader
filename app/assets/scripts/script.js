@@ -1,42 +1,69 @@
 $(document).ready(function () {
 	var savedName = localStorage.getItem('userName'),
 		apiUrl = 'http://discounts-app.local:8081/',
-		productsLoaded = false;
+		productsLoaded = false,
+		cache = {
+			templates: {}
+		},
+		$productsContainer = $('#productsContainer'),
+		$userContainer = $('#userContainer');
 
-	if(null === savedName) savedName = '';
+	if (null == savedName) savedName = '';
 
-	$.ajax({
-		method: 'POST',
-		url: apiUrl + 'validate-user',
-		data: {
-			name: savedName
+	/**
+	 * Validate user
+	 */
+	validateUser();
+
+	/**
+	 * Append the products
+	 * 
+	 * @param {Array} products 
+	 */
+	function appendProducts(products)
+	{
+		if(products.length > 0)
+		{
+			$productsContainer.html('');
+
+			_.each(products, function(product){
+				buildDom('#productTemplate', product, function(dom){
+					$productsContainer.append(dom);
+				})
+			});
 		}
-	})
-	.done(function (response) {
-		console.log('response', response)
+		else
+		{
+			buildDom('#noProductTemplate', {}, function(dom){
+				$productsContainer.html(dom);
+			});
+		}
+	}
 
-		savedName = response.data.name;
+	/**
+	 * Return dom from underscore template and data
+	 * 
+	 * @param {String} elementID 
+	 * @param {Object} data 
+	 */
+	function buildDom(elementID, data, callback)
+	{
+		data = data || {};
 
-		localStorage.setItem('userName', savedName);
-	})
-	.fail(function () {
-		console.log('user validation request failed');
-	})
-	.always(function () {
-		loadProducts(savedName);
-	});
+		callback = callback || function() {};
+
+		if(undefined == cache.templates[elementID]) cache.templates[elementID] = _.template($(elementID).html());
+
+		callback(cache.templates[elementID](data));
+	}
 
 	/**
 	 * Load the list products via ajax request
 	 * 
-	 * @param {string} userName 
+	 * @param {string} savedName 
 	 */
-	function loadProducts(userName)
+	function loadProducts(savedName)
 	{
-		console.log('load products userName', userName);
-
-		if(undefined == userName) userName = '';
-
 		$.ajax({
 			method: 'GET',
 			url: apiUrl + 'load-products',
@@ -53,14 +80,44 @@ $(document).ready(function () {
 		.always(function () {
 		});
 	}
-	
+
 	/**
-	 * Append the products
-	 * 
-	 * @param {Array} products 
+	 * Validate stored user
 	 */
-	function appendProducts(products)
+	function validateUser()
 	{
-		console.log('append products', products)
+		$.ajax({
+			method: 'POST',
+			url: apiUrl + 'validate-user',
+			data: {
+				name: savedName
+			}
+		})
+		.done(function(response){
+			if(undefined != response.data.name)
+			{
+				savedName = response.data.name;
+				
+				buildDom('#discountTemplate', response.data, function(dom){
+					$userContainer.html(dom);
+				});
+			}
+			else
+			{
+				savedName = '';
+				
+				buildDom('#loginTemplate', {}, function(dom){
+					$userContainer.html(dom);
+				});
+			}
+	
+			localStorage.setItem('userName', savedName);
+		})
+		.fail(function () {
+			console.log('user validation request failed');
+		})
+		.always(function () {
+			loadProducts(savedName);
+		});
 	}
 });

@@ -13,6 +13,10 @@ use Phalcon\Di\FactoryDefault;
 use Phalcon\Db\Adapter\Pdo\Mysql as PdoMysql;
 use Phalcon\Mvc\Model\Manager as ModelsManager;
 
+use Phalcon\Config;
+
+$cumulativePromotions = false;
+
 function pre()
 {
 	$numargs = func_num_args();

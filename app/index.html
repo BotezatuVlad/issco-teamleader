@@ -22,7 +22,6 @@
 			 aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
-
 			<div class="collapse navbar-collapse" id="navbarsExampleDefault">
 				<ul class="navbar-nav mr-auto">
 					<li class="nav-item active">
@@ -52,9 +51,7 @@
 				</form>
 			</div>
 		</nav>
-
 		<main role="main">
-
 			<!-- Main jumbotron for a primary marketing message or call to action -->
 			<div class="jumbotron">
 				<div class="container">
@@ -66,28 +63,16 @@
 					</p>
 				</div>
 			</div>
-
 			<div class="container">
 				<!-- Example row of columns -->
 				<div class="row">
-					<div class="col-md-8">
-						<h2>Heading</h2>
-						<div id="productsContainer">
-
-						</div>
-					</div>
-					<div class="col-md-4">
-						
-						<hr />
-						
-					</div>
+					<div id="productsContainer" class="col-md-8"></div>
+					<div id="userContainer" class="col-md-4"></div>
 				</div>
 
 			</div>
 			<!-- /container -->
-
 		</main>
-
 	</div>
 	<footer class="container site-footer">
 		<hr>
@@ -117,13 +102,17 @@
 		</p>
 	</script>
 	<script id="productTemplate" type="text/undescore-template">
+		<div id="product_<%= id %>" class="container">
+			<h2><%= description %></h2>
+			<div>
+				<p>ID: <%= id %>, Category: <%= category %>, Price: <%= price %></p>
+			<div>
+			<hr />
+		</div>
+	</script>
+	<script id="noProductTemplate" type="text/undescore-template">
 		<div>
-			<p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum
-				nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
-			</p>
-			<p>
-				<a class="btn btn-secondary" href="#" role="button">View details &raquo;</a>
-			</p>
+			there are no products
 		<div>
 	</script>
 </body>

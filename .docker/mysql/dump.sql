@@ -23,12 +23,33 @@ INSERT INTO `customers` (`id`, `name`, `since`, `revenue`) VALUES
 (3, 'Jeroen De Wit', '2016-02-11', 0.00);
 
 -- ---------------------------------------------------------
--- Drop customers table
+-- Drop categories table
+-- ---------------------------------------------------------
+DROP TABLE IF EXISTS `categories`;
+
+-- ---------------------------------------------------------
+-- Create categories table
+-- ---------------------------------------------------------
+CREATE TABLE `categories` (
+	`id` INT(10) UNSIGNED AUTO_INCREMENT,
+	`name` VARCHAR(45) NOT NULL,
+	 PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci ROW_FORMAT=COMPRESSED;
+
+-- ---------------------------------------------------------
+-- Insert data in categories table
+-- ---------------------------------------------------------
+INSERT INTO `categories` (`id`, `name`) VALUES
+(1, 'Tools'),
+(2, 'Switches');
+
+-- ---------------------------------------------------------
+-- Drop products table
 -- ---------------------------------------------------------
 DROP TABLE IF EXISTS `products`;
 
 -- ---------------------------------------------------------
--- Create customers table
+-- Create products table
 -- ---------------------------------------------------------
 CREATE TABLE `products` (
 	`id` VARCHAR(45) NOT NULL,
@@ -39,7 +60,7 @@ CREATE TABLE `products` (
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci ROW_FORMAT=COMPRESSED;
 
 -- ---------------------------------------------------------
--- Insert data in customers table
+-- Insert data in products table
 -- ---------------------------------------------------------
 INSERT INTO `products` (`id`, `description`, `category`, `price`) VALUES
 ('A101', 'Screwdriver', 1, 9.75),
