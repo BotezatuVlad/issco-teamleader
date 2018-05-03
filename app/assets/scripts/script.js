@@ -6,14 +6,42 @@ $(document).ready(function () {
 			templates: {}
 		},
 		$productsContainer = $('#productsContainer'),
-		$userContainer = $('#userContainer');
+		$ordersContainer = $('#ordersContainer'),
+		orders = {},
+		loadedOrders = 0;
 
 	if (null == savedName) savedName = '';
 
 	/**
+	 * Set some events
+	 */
+	$('body').off('click', '.place-order').on('click', '.place-order', function(event){
+		placeOrder(parseInt($(this).data('order-id')))
+	});
+
+	/**
+	 * Load orders
+	 */
+	loadOrders();
+
+	/**
 	 * Validate user
 	 */
-	validateUser();
+	loadProducts(savedName);
+
+	/**
+	 * Append all orders
+	 */
+	function appendOrders()
+	{
+		$ordersContainer.html('');
+
+		_.each(orders, function(order){
+			buildDom('#orderTemplate', order, function(dom){
+				$ordersContainer.append(dom);
+			})
+		});
+	}
 
 	/**
 	 * Append the products
@@ -65,7 +93,7 @@ $(document).ready(function () {
 	function loadProducts(savedName)
 	{
 		$.ajax({
-			method: 'GET',
+			type: 'GET',
 			url: apiUrl + 'load-products',
 			data: {
 				name: savedName
@@ -82,42 +110,56 @@ $(document).ready(function () {
 	}
 
 	/**
-	 * Validate stored user
+	 * Load order by id
+	 * 
+	 * @param {int} id 
 	 */
-	function validateUser()
+	function loadOneOrder(id)
 	{
-		$.ajax({
-			method: 'POST',
-			url: apiUrl + 'validate-user',
-			data: {
-				name: savedName
-			}
-		})
-		.done(function(response){
-			if(undefined != response.data.name)
-			{
-				savedName = response.data.name;
-				
-				buildDom('#discountTemplate', response.data, function(dom){
-					$userContainer.html(dom);
-				});
-			}
-			else
-			{
-				savedName = '';
-				
-				buildDom('#loginTemplate', {}, function(dom){
-					$userContainer.html(dom);
-				});
-			}
-	
-			localStorage.setItem('userName', savedName);
-		})
-		.fail(function () {
-			console.log('user validation request failed');
-		})
-		.always(function () {
-			loadProducts(savedName);
+		$.getJSON("/orders/order" + id + ".json", function(data){
+			orders["order" + id] = data;
+
+			loadedOrders++;
+
+			if(loadedOrders == 3) appendOrders();
 		});
+	}
+
+	/**
+	 * Load all orders
+	 */
+	function loadOrders()
+	{
+		var i,
+			count = 3;
+
+		for(i = 1; i <= count; i++)
+		{
+			loadOneOrder(i);
+		}
+	}
+
+	/**
+	 * Place order
+	 * 
+	 * @param {int} id 
+	 */
+	function placeOrder(id)
+	{
+		var orderID = 'order' + id;
+
+		if(undefined != orders[orderID])
+		{
+			$.ajax({
+				url: apiUrl + 'place-order',
+				type: 'POST',
+				data: {
+					order: JSON.stringify(orders[orderID])
+				},
+			})
+			.done(function(response){
+				$('#discountsContainer').html(JSON.stringify(response));
+			})
+		}
 	}
 });

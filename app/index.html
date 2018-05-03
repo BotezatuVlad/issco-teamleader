@@ -1,120 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-	<meta charset="UTF-8">
-	<title>Title of the document</title>
-	<meta name="description" content="Page description">
-	<meta name="keywords" content="HTML,CSS,XML,JavaScript">
-	<meta name="author" content="SitePoint">
-	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scaleable=0">
-	<link rel="stylesheet" href="/assets/styles/jquery-ui.css">
-	<link rel="stylesheet" href="/assets/styles/jquery-ui.theme.css">
-	<link rel="stylesheet" href="/assets/styles/bootstrap.min.css">
-	<link rel="stylesheet" href="/assets/styles/styles.css">
-</head>
-
-<body>
-	<div class="page-wrap">
-		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-			<a class="navbar-brand" href="#">Navbar</a>
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault"
-			 aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse" id="navbarsExampleDefault">
-				<ul class="navbar-nav mr-auto">
-					<li class="nav-item active">
-						<a class="nav-link" href="#">Home
-							<span class="sr-only">(current)</span>
-						</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">Link</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link disabled" href="#">Disabled</a>
-					</li>
-					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true"
-						 aria-expanded="false">Dropdown</a>
-						<div class="dropdown-menu" aria-labelledby="dropdown01">
-							<a class="dropdown-item" href="#">Action</a>
-							<a class="dropdown-item" href="#">Another action</a>
-							<a class="dropdown-item" href="#">Something else here</a>
-						</div>
-					</li>
-				</ul>
-				<form class="form-inline my-2 my-lg-0">
-					<input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-					<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-				</form>
-			</div>
-		</nav>
-		<main role="main">
-			<!-- Main jumbotron for a primary marketing message or call to action -->
-			<div class="jumbotron">
+	<head>
+		<meta charset="UTF-8">
+		<title>Title of the document</title>
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scaleable=0">
+		<link rel="stylesheet" href="/assets/styles/jquery-ui.css">
+		<link rel="stylesheet" href="/assets/styles/jquery-ui.theme.css">
+		<link rel="stylesheet" href="/assets/styles/bootstrap.min.css">
+		<link rel="stylesheet" href="/assets/styles/styles.css">
+	</head>
+	<body>
+		<div class="page-wrap">
+			<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+				<a class="navbar-brand" href="#">Navbar</a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault"
+				aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarsExampleDefault">
+					<ul class="navbar-nav mr-auto">
+						<li class="nav-item active">
+							<a class="nav-link" href="#">Home
+								<span class="sr-only">(current)</span>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="#">Link</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link disabled" href="#">Disabled</a>
+						</li>
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true"
+							aria-expanded="false">Dropdown</a>
+							<div class="dropdown-menu" aria-labelledby="dropdown01">
+								<a class="dropdown-item" href="#">Action</a>
+								<a class="dropdown-item" href="#">Another action</a>
+								<a class="dropdown-item" href="#">Something else here</a>
+							</div>
+						</li>
+					</ul>
+					<form class="form-inline my-2 my-lg-0">
+						<input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+						<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+					</form>
+				</div>
+			</nav>
+			<main role="main">
+				<div class="jumbotron">
+					<div class="container">
+						<h1 class="display-3">Hello, world!</h1>
+						<p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and
+							three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+						<p>
+							<a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a>
+						</p>
+					</div>
+				</div>
 				<div class="container">
-					<h1 class="display-3">Hello, world!</h1>
-					<p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and
-						three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-					<p>
-						<a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a>
-					</p>
+					<div class="row">
+						<div id="productsContainer" class="col-md-3"></div>
+						<div id="ordersContainer" class="col-md-3"></div>
+						<div id="discountsContainer" class="col-md-6"></div>
+					</div>
 				</div>
-			</div>
-			<div class="container">
-				<!-- Example row of columns -->
-				<div class="row">
-					<div id="productsContainer" class="col-md-8"></div>
-					<div id="userContainer" class="col-md-4"></div>
-				</div>
-
-			</div>
-			<!-- /container -->
-		</main>
-	</div>
-	<footer class="container site-footer">
-		<hr>
-		<p>&copy; Company 2017-2018</p>
-	</footer>
-	<script src="/assets/scripts/jquery-3.3.1.min.js"></script>
-	<script src="/assets/scripts/jquery-ui.min.js"></script>
-	<script src="/assets/scripts/underscore-min.js"></script>
-	<script src="/assets/scripts/bootstrap.bundle.min.js"></script>
-	<script src="/assets/scripts/script.js"></script>
-	<script id="loginTemplate" type="text/undescore-template">
-		<form class="form-signin">
-			<h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-			<label for="inputEmail" class="sr-only">User name</label>
-			<input type="ttext" id="name" class="form-control" placeholder="Username" required>
-			<button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-		</form>
-	</script>
-	<script id="discountTemplate" type="text/undescore-template">
-		<h2>Heading</h2>
-		<p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod
-			semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet
-			risus.
-		</p>
-		<p>
-			<a class="btn btn-secondary" href="#" role="button">View details &raquo;</a>
-		</p>
-	</script>
-	<script id="productTemplate" type="text/undescore-template">
-		<div id="product_<%= id %>" class="container">
-			<h2><%= description %></h2>
-			<div>
-				<p>ID: <%= id %>, Category: <%= category %>, Price: <%= price %></p>
-			<div>
-			<hr />
+			</main>
 		</div>
-	</script>
-	<script id="noProductTemplate" type="text/undescore-template">
-		<div>
-			there are no products
-		<div>
-	</script>
-</body>
-
+		<footer class="container site-footer">
+			<hr>
+			<p>&copy; Company 2017-2018</p>
+		</footer>
+		<script src="/assets/scripts/jquery-3.3.1.min.js"></script>
+		<script src="/assets/scripts/jquery-ui.min.js"></script>
+		<script src="/assets/scripts/underscore-min.js"></script>
+		<script src="/assets/scripts/bootstrap.bundle.min.js"></script>
+		<script src="/assets/scripts/script.js"></script>
+		<script id="productTemplate" type="text/undescore-template">
+				<div id="product_<%= id %>" class="container">
+					<h2><%= description %></h2>
+					<div>
+						<p>ID: <%= id %>, Category: <%= category %>, Price: <%= price %></p>
+					<div>
+					<hr />
+				</div>
+			</script>
+		<script id="noProductTemplate" type="text/undescore-template">
+				<div>
+					there are no products
+				<div>
+			</script>
+		<script id="orderTemplate" type="text/undescore-template">
+				<div>
+					<h2>Order ID: <%= id %></h2>
+					<input type="button" class="btn btn-primary place-order" value="Place order  #<%= id %>" data-order-id="<%= id %>">
+				<div>
+				<hr />
+			</script>
+	</body>
 </html>

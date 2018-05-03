@@ -68,3 +68,29 @@ INSERT INTO `products` (`id`, `description`, `category`, `price`) VALUES
 ('B101', 'Basic on-off switch', 2, 4.99),
 ('B102', 'Press button', 2, 4.99),
 ('B103', 'Switch with motion detector', 2, 12.95);
+
+-- ---------------------------------------------------------
+-- Drop categories_discounts table
+-- ---------------------------------------------------------
+DROP TABLE IF EXISTS `categories_discounts`;
+
+-- ---------------------------------------------------------
+-- Create categories_discounts table
+-- ---------------------------------------------------------
+CREATE TABLE `categories_discounts` (
+	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`category` INT(10) UNSIGNED NOT NULL,
+	`discpountType` VARCHAR(45) NOT NULL,
+	`discountName` VARCHAR(255) NOT NULL,
+	`discountPercentage` DECIMAL(10,2) UNSIGNED,
+	`discountBuy` INT(10) UNSIGNED,
+	`discountBonus` INT(10) UNSIGNED,
+	 PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci ROW_FORMAT=COMPRESSED;
+
+-- ---------------------------------------------------------
+-- Insert data in categories_discounts table
+-- ---------------------------------------------------------
+INSERT INTO `categories_discounts` (`id`, `category`, `discpountType`, `discountName`, `discountPercentage`, `discountBuy`, `discountBonus`) VALUES
+(1, 2, 'bonusProduct', 'when you buy five, you get a sixth for free', NULL, 5, 1),
+(2, 1, 'percentageOfCheapest', 'You get a 20% discount on the cheapest product', 20, null, null);

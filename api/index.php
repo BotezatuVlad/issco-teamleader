@@ -40,6 +40,28 @@ function pre()
 	echo '---------------------------------------';
 }
 
+function validOrder($order)
+{
+	$output = false;
+
+	if(array_key_exists('customer-id', $order) && array_key_exists('items', $order) && is_array($order['items']) && count($order['items']) > 0)
+	{
+		$output = true;
+
+		foreach($order['items'] as $item)
+		{
+			if(!array_key_exists('product-id', $item) || !array_key_exists('quantity', $item))
+			{
+				$output = false;
+
+				break;
+			}
+		}
+	}
+
+	return $output;
+}
+
 // create dependency injection container
 $di = new FactoryDefault();
 
@@ -82,72 +104,6 @@ $app->get('/', function () use ($app) {
 	return $response;
 });
 
-// authenticate user
-$app->get('/auth', function () use ($app) {
-	$response = new Response();
-
-	$output = [
-		'status' => 'ERROR',
-		'code' => 1,
-		'data' => [],
-		'message' => 'Invalid request'
-	];
-
-	$isAjaxPost = true;// $app->request->isPost() && $request->isAjax();
-
-	if($isAjaxPost)
-	{
-		$filter = new Filter();
-	
-		$username = $filter->sanitize($app->request->get('name'), "string");
-
-		$userObj = null;
-
-		if(!empty($username))
-		{
-			$result = $app->db->query("SELECT * FROM `customers` WHERE `name` = :name: ORDER BY `id` LIMIT 1", ['name' => $username]);
-		
-			$result->setFetchMode(\Phalcon\Db::FETCH_OBJ);
-			
-			$userObj = $result->fetch();
-		}
-
-		if(!empty($userObj))
-		{
-			$output = [
-				'status' => 'OK',
-				'code' => 0,
-				'data' => $userObj,
-				'message' => 'User found'
-			];
-		}
-		else
-		{
-			$output['code'] = 2;
-
-			$output['message'] = 'User not found';
-		}
-	}
-	
-	$response->setJsonContent($output);
-	
-	return $response;
-});
-
-// get user discount
-$app->get('/get-discounts', function () use ($app) {
-	$response = new Response();
-	
-	$response->setJsonContent([
-		'status' => 'OK',
-		'code' => 0,
-		'data' => [],
-		'data' => 'get users`s discounts'
-	]);
-	
-	return $response;
-});
-
 // get the list of products
 $app->get('/load-products', function () use ($app) {
 	$products = $app->db->fetchAll("SELECT * FROM `products` ORDER BY `id`", \Phalcon\Db::FETCH_OBJ);
@@ -164,16 +120,175 @@ $app->get('/load-products', function () use ($app) {
 	return $response;
 });
 
-$app->post('/validate-user', function () use ($app) {
+// place an order to get discounts
+$app->post('/place-order', function () use ($app) {
 	$response = new Response();
+
+	$output = [
+		'status' => 'ERROR',
+		'code' => 1,
+		'message' => 'Invalid request'
+	];
+
+	if($app->request->isPost())
+	{
+		$filter = new Filter();
+
+		$decodedOrder = json_decode($app->request->getPost('order'), true);
+
+		$orderData = null;
+
+		$productsDiscount = $orderDiscount = $productsValue = $discountValue = $totalValue = 0;
+
+		if(json_last_error() == JSON_ERROR_NONE && validOrder($decodedOrder))
+		{
+			$productsIDs = [];
+
+			$quantities = [];
+
+			foreach($decodedOrder['items'] as $item)
+			{
+				$productsIDs[] = $filter->sanitize($item['product-id'], "string");
+
+				$quantities[] = intval($item['quantity']);
+			}
+
+			$syntax = "
+				SELECT 
+				`products`.`id` AS `productID`,
+				`products`.`description` AS `productDescription`,
+				`products`.`category` AS `productCategoryID`,
+				`products`.`price` AS `productPrice`,
+				`categories`.`name` AS `categoryName`,
+				`categories_discounts`.`discpountType`,
+				`categories_discounts`.`discountName`,
+				`categories_discounts`.`discountPercentage`,
+				`categories_discounts`.`discountBuy`,
+				`categories_discounts`.`discountBonus`
+				FROM `products`
+				LEFT JOIN `categories` ON `products`.`category` = `categories`.`id`
+				LEFT JOIN `categories_discounts` ON `categories_discounts`.`category` = `categories`.`id`
+				WHERE 
+					`products`.`id` IN ('".implode("', '", $productsIDs)."')";
+
+			$results = $app->db->query($syntax);
 	
-	$response->setJsonContent([
-		'status' => 'OK',
-		'code' => 0,
-		'data' => [],
-		'message' => 'check if the user is valid'
-	]);
-	   
+			$results->setFetchMode(\Phalcon\Db::FETCH_OBJ);
+
+			$orderData = $results->fetchAll();
+
+			$customerID = intval($decodedOrder['customer-id']);
+
+			$customer = $app->db->query("SELECT * FROM `customers` WHERE `id` = ? LIMIT 1", [$customerID]);
+		
+			$customer->setFetchMode(\Phalcon\Db::FETCH_OBJ);
+
+			if(!empty($orderData) && !empty($customer->fetch()))
+			{
+				$groupedByCategory = [];
+
+				foreach($orderData as $product)
+				{
+					$clone = clone($product);
+
+					if(!array_key_exists($product->productCategoryID, $groupedByCategory))
+					{
+						$groupedByCategory[$product->productCategoryID] = [
+							'discount' => $clone,
+							'products' => []
+						];
+					}
+
+					if(!array_key_exists($product->productID, $groupedByCategory[$product->productCategoryID]['products']))
+					{
+						$groupedByCategory[$product->productCategoryID]['products'][$product->productID] = $clone;
+					}
+				}
+
+				foreach($groupedByCategory as $categoryID => $category)
+				{
+					switch($category['discount']->discpountType)
+					{
+						case 'percentageOfCheapest':
+							usort($category['products'], function($a, $b){
+								return $a->productPrice <=> $b->productPrice;
+							});
+							$productsDiscount += round($category['products'][0]->productPrice * $category['discount']->discountPercentage / 100, 2);
+							break;
+						case 'bonusProduct':
+							$productsCount = count($category['products']);
+
+							usort($category['products'], function($a, $b){
+								return $b->productPrice <=> $a->productPrice;
+							});
+
+							$bonusProductsCount = floor($productsCount / ($category['discount']->discountBuy + $category['discount']->discountBonus)) * $category['discount']->discountBonus;
+
+							if($bonusProductsCount > 0)
+							{
+								$bonusProducts = [];
+
+								for($i = $productsCount - $bonusProductsCount; $i < $productsCount; $i++)
+								{
+									$bonusProducts[] = $category['products'][$i];
+								}
+
+								foreach($bonusProducts as $product)
+								{
+									$productsDiscount += $product->productPrice;
+								}
+							}
+							break;
+						default:
+							break;
+					}
+
+					foreach($category['products'] as $product)
+					{
+						$productsValue += $product->productPrice;
+					}
+				}
+
+				$usersWithOrderDiscount = [1 => false, 2 => true, 3 => false];
+
+				if(array_key_exists($customerID, $usersWithOrderDiscount) && true === $usersWithOrderDiscount[$customerID])
+				{
+					$discountMinValue = $productsValue * .1;
+
+					if($productsDiscount < $discountMinValue)
+					{
+						$orderDiscount = round($discountMinValue - $productsDiscount, 2);
+					}
+				}
+			}
+		}
+
+		$discountValue = $productsDiscount + $orderDiscount;
+
+		$totalValue = $productsValue - $discountValue;
+
+		if(!empty($orderData))
+		{
+			$output = [
+				'status' => 'OK',
+				'code' => 0,
+				'data' => [
+					'productsValue' => $productsValue,
+					'discountValue' => $discountValue,
+					'totalValue' => $totalValue,
+				]
+			];
+		}
+		else
+		{
+			$output['code'] = 2;
+
+			$output['message'] = 'Discounts not found';
+		}
+	}
+	
+	$response->setJsonContent($output);
+	
 	return $response;
 });
 
